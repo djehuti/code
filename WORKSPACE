@@ -19,3 +19,28 @@ http_archive(
     build_file = "@//build:pistache.BUILD",
     strip_prefix = "pistache-117db02eda9d63935193ad98be813987f6c32b33",
 )
+
+# TODO(bcox): Stuff to add:
+# https://en.cppreference.com/w/cpp/links/libs
+#   * GLog                      https://github.com/google/glog
+#   * GMock                     (in with gtest)
+#   * Flatbuffers               https://github.com/google/flatbuffers
+#      + GRPC? Protobuf?
+#   * Eigen                     https://bitbucket.org/eigen/eigen/src/default/
+#   * curlpp                    https://github.com/jpbarrette/curlpp
+#   * RapidJSON                 https://github.com/Tencent/rapidjson
+#   * Zlib                      https://github.com/madler/zlib
+#   * BoringSSL                 https://github.com/google/boringssl
+#   * Synthesis Toolkit         https://ccrma.stanford.edu/software/stk/
+#   * SOCI                      https://github.com/SOCI/soci
+#      + SQLite3?
+#   * Abseil?
+#   + ZeroMQ?
+#   * BDE (Blomberg)?
+#   * OpenCV?
+#   * JUCE?
+#   * Qt?
+#   * Dlib?
+#   * Tensorflow?
+#   * Libevent?
+#   * FMOD?                     https://www.fmod.com/
