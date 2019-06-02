@@ -4,6 +4,8 @@
 
 #include "gtest/gtest.h"
 
+using namespace djehuti::literals;
+
 namespace djehuti {
 
 TEST(Temperature, Basic) {
@@ -15,6 +17,7 @@ TEST(Temperature, Basic) {
     EXPECT_EQ(Temperature::freezing().plus_centigrade(100.0), Temperature::boiling());
     EXPECT_EQ(Temperature::freezing().plus_fahrenheit(180.0), Temperature::boiling());
     EXPECT_EQ(Temperature::from_fahrenheit(-459.67), Temperature::absolute_zero());
+    EXPECT_EQ(32.0_fahrenheit, Temperature::freezing());
 }
 
 }  // namespace djehuti

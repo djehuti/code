@@ -3,6 +3,22 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
+    name = "angle",
+    srcs = ["angle.cc"],
+    hdrs = ["angle.hh"],
+)
+
+cc_test(
+    name = "angle_test",
+    size = "small",
+    srcs = ["angle_test.cc"],
+    deps = [
+        ":angle",
+        "@gtest//:main",
+    ],
+)
+
+cc_library(
     name = "temperature",
     srcs = ["temperature.cc"],
     hdrs = ["temperature.hh"],

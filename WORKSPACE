@@ -36,7 +36,6 @@ http_archive(
 
 # TODO(bcox): Stuff to add:
 # https://en.cppreference.com/w/cpp/links/libs
-#   * GMock                     (in with gtest)
 #   * Flatbuffers               https://github.com/google/flatbuffers
 #      + GRPC? Protobuf?
 #   * Eigen                     https://bitbucket.org/eigen/eigen/src/default/
