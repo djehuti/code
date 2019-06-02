@@ -9,6 +9,8 @@ cc_binary(
     name = "dumb_server",
     srcs = ["dumb_server.cc"],
     deps = [
+        "@com_github_gflags_gflags//:gflags",
+        "@glog//:glog",
         "@pistache//:pistache",
     ]
 )

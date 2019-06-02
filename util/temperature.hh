@@ -47,7 +47,7 @@ class Temperature final {
     Temperature minus_fahrenheit(double f) const { return plus_fahrenheit(-f); }
 
     bool almost_equal(const Temperature &other, double tolerance = DEFAULT_TOLERANCE) const {
-        return std::abs(kelvin_ - other.kelvin_) <= DEFAULT_TOLERANCE;
+        return std::abs(kelvin_ - other.kelvin_) <= std::abs(tolerance);
     }
 
     bool operator==(const Temperature &other) const { return almost_equal(other); }
