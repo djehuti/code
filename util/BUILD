@@ -17,3 +17,20 @@ cc_test(
         "@gtest//:main",
     ],
 )
+
+cc_library(
+    name = "string",
+    srcs = ["string.cc"],
+    hdrs = ["string.hh"],
+)
+
+cc_test (
+    name = "string_test",
+    size = "small",
+    srcs = ["string_test.cc"],
+    deps = [
+        ":string",
+        "@gtest//:main",
+        "@gtest//:gmock",
+    ],
+)
