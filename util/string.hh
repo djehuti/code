@@ -14,14 +14,10 @@ namespace string {
  */
 std::vector<std::string> split(const std::string &whole, char separator);
 
-/**
- * Join the given strings together, separated by the separator.
- */
+/// Join the given strings together, separated by the separator.
 std::string join(const std::vector<std::string> &parts, const std::string &separator);
 
-/**
- * Join the given strings together, separated by the separator.
- */
+/// Join the given strings together, separated by the separator.
 std::string join(const std::vector<std::string> &parts, char separator) {
     return join(parts, std::string(1u, separator));
 }

@@ -18,6 +18,7 @@ TEST(Temperature, Basic) {
     EXPECT_EQ(Temperature::freezing().plus_fahrenheit(180.0), Temperature::boiling());
     EXPECT_EQ(Temperature::from_fahrenheit(-459.67), Temperature::absolute_zero());
     EXPECT_EQ(32.0_fahrenheit, Temperature::freezing());
+    EXPECT_EQ(37_centigrade, 98.6_fahrenheit);
 }
 
 }  // namespace djehuti
