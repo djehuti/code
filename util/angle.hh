@@ -51,14 +51,18 @@ class Angle final {
         return std::abs(diff) <= std::abs(tolerance);
     }
 
-    /// Returns true if the two Angles are within 1e-5 radians of one another.
-    bool operator==(const Angle &other) const { return almost_equal(other); }
-    /// Returns false if the two Angles are within 1e-5 radians of one another.
-    bool operator!=(const Angle &other) const { return !almost_equal(other); }
+    /// Returns true if the two Angles are exactly equal.
+    bool operator==(const Angle &other) const { return radians_ == other.radians_; }
+    /// Returns false if the two Angles are exactly equal.
+    bool operator!=(const Angle &other) const { return !(*this == other); }
     /// Returns true if the Angle is smaller than the other.
     bool operator<(const Angle &other) const { return radians_ < other.radians_; }
+    /// Returns true if the Angle is smaller than or equal to the other.
+    bool operator<=(const Angle &other) const { return radians_ <= other.radians_; }
     /// Returns true if the Angle is larger than the other.
     bool operator>(const Angle &other) const { return radians_ > other.radians_; }
+    /// Returns true if the Angle is larger than or equal to the other.
+    bool operator>=(const Angle &other) const { return radians_ >= other.radians_; }
 
     /// Returns the sine of the Angle.
     double sin() const { return std::sin(radians_); }
@@ -88,11 +92,12 @@ class Angle final {
     /// Returns the Angle whose hyperbolic tangent is d.
     static Angle atanh(double d) { return Angle(std::atanh(d)); }
 
+    static std::ostream &output_auto(std::ostream &os) { return output_format(os, AUTO); }
+    static std::ostream &output_radians(std::ostream &os) { return output_format(os, RADIANS); }
+    static std::ostream &output_degrees(std::ostream &os) { return output_format(os, DEGREES); }
+
  private:
-    friend constexpr Angle operator*(const Angle &, double);
-    friend constexpr Angle operator/(const Angle &, double);
-    friend constexpr Angle operator+(const Angle &, const Angle &);
-    friend constexpr Angle operator-(const Angle &, const Angle &);
+    enum OutputFormat : long { AUTO = 0, RADIANS = 1, DEGREES = 2 };
 
     static constexpr double HALF_CIRCLE_DEG = 180.0;
     static constexpr double TWO_PI = 2.0 * M_PI;
@@ -105,52 +110,81 @@ class Angle final {
         return (r < 0) ? normalize(r + TWO_PI) : ((r >= TWO_PI) ? normalize(r - TWO_PI) : r);
     }
 
+    // Return the ios_base storage index for the format selector for Angles.
+    static int geti() {
+        static int i = std::ios_base::xalloc();
+        return i;
+    }
+
+    // Set the output format to the given value.
+    static std::ostream &output_format(std::ostream &os, OutputFormat fmt) {
+        os.iword(geti()) = fmt;
+        return os;
+    }
+
+    // The stream inserter needs to access geti() and OutputFormat.
+    friend std::ostream &operator<<(std::ostream &, const Angle &);
+
     /// The Angle is internally stored in radians.
     double radians_;
 };
 
 /// Returns the (normalized) Angle multiplied by mult.
-constexpr Angle operator*(const Angle &ang, double mult) {
-    return Angle(ang.radians() * mult);
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+constexpr Angle operator*(const Angle &ang, const T &mult) {
+    return Angle::from_radians(ang.radians() * mult);
+}
+
+/// Returns the (normalized) Angle multiplied by mult.
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+constexpr Angle operator*(const T &mult, const Angle &ang) {
+    return Angle::from_radians(mult * ang.radians());
 }
 
 /// Returns the Angle divided by div.
-constexpr Angle operator/(const Angle &ang, double div) {
-    return Angle(ang.radians() / div);
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+constexpr Angle operator/(const Angle &ang, const T &div) {
+    return Angle::from_radians(ang.radians() / div);
 }
 
 /// Returns the (normalized) sum of the two Angles.
 constexpr Angle operator+(const Angle &ang1, const Angle &ang2) {
-    return Angle(ang1.radians() + ang2.radians());
+    return Angle::from_radians(ang1.radians() + ang2.radians());
 }
 
 /// Returns the (normalized) difference between the two Angles.
 /// Note that if ang2 is larger than ang1, the result will be 360 degrees minus the difference,
 /// and not a negative angle.
 constexpr Angle operator-(const Angle &ang1, const Angle &ang2) {
-    return Angle(ang1.radians() - ang2.radians());
+    return Angle::from_radians(ang1.radians() - ang2.radians());
 }
+
+/// The stream inserter outputs an Angle as a number of degrees followed by "_deg" when in AUTO
+/// mode (default, or with Angle::output_auto stream manipulator). (The same format as accepted
+/// as a C++ degrees literal.) When in RADIANS or DEGREES mode, it outputs just the number, with
+/// no suffix.
+std::ostream &operator<<(std::ostream &, const Angle &);
 
 namespace literals {
 
 /// You can express an Angle as a radian literal ("1.0_rad").
-constexpr Angle operator "" _rad(long double radians) {
+inline constexpr Angle operator"" _rad(long double radians) {
+    return Angle::from_radians(static_cast<double>(radians));
+}
+
+/// You can express an Angle as a radian literal ("0_rad").
+inline constexpr Angle operator"" _rad(unsigned long long radians) {
     return Angle::from_radians(static_cast<double>(radians));
 }
 
 /// You can express an Angle as a degrees literal ("90.0_deg").
-constexpr Angle operator "" _deg(long double degrees) {
+inline constexpr Angle operator"" _deg(long double degrees) {
     return Angle::from_degrees(static_cast<double>(degrees));
 }
 
 /// You can express an Angle as a degrees literal ("90_deg").
-constexpr Angle operator "" _deg(unsigned long long degrees) {
+inline constexpr Angle operator"" _deg(unsigned long long degrees) {
     return Angle::from_degrees(static_cast<double>(degrees));
-}
-
-/// Output the Angle on the given stream (as a degrees literal).
-std::ostream &operator<<(std::ostream &os, const Angle &angle) {
-    return os << angle.degrees() << "_deg";
 }
 
 }  // namespace literals

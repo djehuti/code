@@ -3,6 +3,7 @@
 #pragma once
 
 #include <cmath>
+#include <iostream>
 
 namespace djehuti {
 
@@ -63,6 +64,9 @@ class Temperature final {
     /// Returns absolute zero.
     static const Temperature &absolute_zero();
 
+    /// Returns "normal human body temp".
+    static const Temperature &body_temp();
+
     /// Returns a new Temperature, offset from this by the given Kelvin measure.
     constexpr Temperature plus_kelvin(double k) const {
         return Temperature(this->kelvin_ + k);
@@ -85,20 +89,39 @@ class Temperature final {
     constexpr Temperature minus_fahrenheit(double f) const { return plus_fahrenheit(-f); }
 
     /// Returns true if the two Temperatures are within `tolerance` Kelvin of one another.
-    bool almost_equal(const Temperature &other, double tolerance = DEFAULT_TOLERANCE) const {
+    constexpr bool almost_equal(const Temperature &other,
+                                double tolerance = DEFAULT_TOLERANCE) const {
         return std::abs(kelvin_ - other.kelvin_) <= std::abs(tolerance);
     }
 
-    /// Returns true if the two Temperatures are within 1e-5 Kelvin of one another.
-    bool operator==(const Temperature &other) const { return almost_equal(other); }
-    /// Returns false if the two Temperatures are within 1e-5 Kelvin of one another.
-    bool operator!=(const Temperature &other) const { return !almost_equal(other); }
+    /// Returns true if the two Temperatures are exactly equal.
+    constexpr bool operator==(const Temperature &other) const { return kelvin_ == other.kelvin_; }
+    /// Returns false if the two Temperatures are exactly equal.
+    constexpr bool operator!=(const Temperature &other) const { return !(*this == other); }
     /// Returns true if this Temperature is colder than the given Temperature.
-    bool operator<(const Temperature &other) const { return kelvin_ < other.kelvin_; }
-    /// Returns true if this Temperature is hotter than the given Temperature.
-    bool operator>(const Temperature &other) const { return kelvin_ > other.kelvin_; }
+    constexpr bool operator<(const Temperature &other) const { return kelvin_ < other.kelvin_; }
+    /// Returns true if this Temperature is colder than or equal to the given Temperature.
+    constexpr bool operator<=(const Temperature &other) const { return kelvin_ <= other.kelvin_; }
+    /// Returns true if this Temperature is hotter than or equal to the given Temperature.
+    constexpr bool operator>=(const Temperature &other) const { return kelvin_ >= other.kelvin_; }
+
+    // I/O manipulators
+    static std::ostream &output_auto(std::ostream &os) { return output_format(os, AUTO); }
+    static std::ostream &output_kelvin(std::ostream &os) { return output_format(os, KELVIN); }
+    static std::ostream &output_celsius(std::ostream &os) { return output_format(os, CELSIUS); }
+    static std::ostream &output_centigrade(std::ostream &os) { return output_celsius(os); }
+    static std::ostream &output_fahrenheit(std::ostream &os) {
+        return output_format(os, FAHRENHEIT);
+    }
 
  private:
+    enum OutputFormat : long {
+        AUTO = 0,
+        KELVIN = 1,
+        CELSIUS = 2,
+        FAHRENHEIT = 3,
+    };
+
     // This constructor is private; use one of the unit-safe factory methods instead.
     constexpr explicit Temperature(double k) : kelvin_(k) {}
 
@@ -109,6 +132,7 @@ class Temperature final {
     static constexpr double BOILING_C = 100.0;
     static constexpr double FREEZING_K = 273.15;
     static constexpr double BOILING_K = FREEZING_K + (BOILING_C - FREEZING_C);
+    static constexpr double BODY_TEMP_C = 37.0;
 
     // Conversion factors.
     static constexpr double KF_FACTOR = ((BOILING_F - FREEZING_F) / (BOILING_K - FREEZING_K));
@@ -126,9 +150,29 @@ class Temperature final {
         return (k - FREEZING_K) * KF_FACTOR + FREEZING_F;
     }
 
+    // Return the ios_base storage index for the format selector for Temperature.
+    static int geti() {
+        static int i = std::ios_base::xalloc();
+        return i;
+    }
+
+    // Set the output format to the given value.
+    static std::ostream &output_format(std::ostream &os, OutputFormat fmt) {
+        os.iword(geti()) = fmt;
+        return os;
+    }
+
+    // The stream inserter needs to access geti() and OutputFormat.
+    friend std::ostream &operator<<(std::ostream &, const Temperature &);
+
     /// The Temperature is internally stored in Kelvin.
     double kelvin_;
 };
+
+/// The stream inserter outputs the temp in Kelvin with "_kelvin" by default (if no stream
+/// manipulator or Temperature::output_auto is used). If another output manipulator is used,
+/// it outputs a raw number with no unit suffix.
+std::ostream &operator<<(std::ostream &, const Temperature &);
 
 namespace literals {
 
