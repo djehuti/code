@@ -21,7 +21,7 @@ IncludeCategories:
     Priority:        1
   - Regex:           '^<'
     Priority:        2
-  - Regex:           '^"((third_party|Eigen|google|GL|QtCore|QtGui|QtWidgets|QtQml|re2)/|QObject|zmq.hpp)'
+  - Regex:           '^"(pistache|glog|gmock|gflags|gtest)/'
     Priority:        3
   - Regex:           '.\*'
     Priority:        4
