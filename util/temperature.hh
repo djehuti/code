@@ -23,6 +23,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "util/math.hh"
+
 namespace djehuti {
 
 /**
@@ -109,7 +111,7 @@ class Temperature final {
     /// Returns true if the two Temperatures are within `tolerance` Kelvin of one another.
     constexpr bool almost_equal(const Temperature &other,
                                 double tolerance = DEFAULT_TOLERANCE) const {
-        return std::abs(kelvin_ - other.kelvin_) <= std::abs(tolerance);
+        return djehuti::abs(kelvin_ - other.kelvin_) <= djehuti::abs(tolerance);
     }
 
     /// Returns true if the two Temperatures are exactly equal.

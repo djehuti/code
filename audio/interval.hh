@@ -23,6 +23,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "util/math.hh"
+
 namespace djehuti {
 namespace audio {
 
@@ -51,7 +53,7 @@ class Interval final {
     /// Return the Interval expressed in octaves.
     constexpr double octaves() const { return semitones_ / SEMITONES_PER_OCTAVE; }
     /// Return the Interval expressed as a ratio.
-    constexpr double ratio() const { return std::exp2(octaves()); }
+    MAYBE_CONSTEXPR double ratio() const { return std::exp2(octaves()); }
 
     /// Create an Interval from a number of semitones.
     static constexpr Interval from_semitones(double semitones) { return Interval(semitones); }
@@ -64,13 +66,13 @@ class Interval final {
         return Interval(octaves * SEMITONES_PER_OCTAVE);
     }
     /// Create an Interval from a ratio.
-    static constexpr Interval from_ratio(double ratio) {
+    static MAYBE_CONSTEXPR Interval from_ratio(double ratio) {
         return Interval(SEMITONES_PER_OCTAVE * std::log2(ratio));
     }
 
     /// Returns true if the intervals are almost equivalent, with the given tolerance.
     constexpr bool almost_equal(const Interval &other, double tolerance = DEFAULT_TOLERANCE) const {
-        return std::abs(semitones_ - other.semitones_) <= tolerance;
+        return djehuti::abs(semitones_ - other.semitones_) <= tolerance;
     }
 
     /// Returns true if the intervals are exactly equal.

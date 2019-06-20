@@ -21,6 +21,19 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
+    name = "platform",
+    hdrs = ["platform.hh"],
+)
+
+cc_library(
+    name = "math",
+    hdrs = ["math.hh"],
+    deps = [
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "angle",
     srcs = ["angle.cc"],
     hdrs = ["angle.hh"],
@@ -40,6 +53,9 @@ cc_library(
     name = "temperature",
     srcs = ["temperature.cc"],
     hdrs = ["temperature.hh"],
+    deps = [
+        ":math",
+    ],
 )
 
 cc_test(

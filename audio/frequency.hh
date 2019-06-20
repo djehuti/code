@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include "audio/interval.hh"
+#include "util/math.hh"
 
 namespace djehuti {
 namespace audio {
@@ -52,11 +53,11 @@ class Frequency final {
     /// Return the Frequency expressed as a cycle length in seconds (1/Hz).
     constexpr double period_sec() const { return 1.0 / hertz_; }
     /// Return the Frequency expressed as a cycle length (1/Hz).
-    constexpr std::chrono::nanoseconds period() const {
+    MAYBE_CONSTEXPR std::chrono::nanoseconds period() const {
         return std::chrono::nanoseconds(std::lround(period_sec() * BILLION));
     }
     /// Returns the Frequency expressed as a MIDI note number.
-    constexpr double midi_note() const {
+    MAYBE_CONSTEXPR double midi_note() const {
         return REFERENCE_NOTE + Interval::from_ratio(hertz_ / REFERENCE_FREQ).semitones();
     }
 
@@ -69,7 +70,7 @@ class Frequency final {
         return Frequency::from_period_sec(static_cast<double>(period.count()) / BILLION);
     }
     /// Create a Frequency from a MIDI note number.
-    static constexpr Frequency from_midi_note(double p) {
+    static MAYBE_CONSTEXPR Frequency from_midi_note(double p) {
         return Frequency(REFERENCE_FREQ * Interval::from_semitones(p - REFERENCE_NOTE).ratio());
     }
 
@@ -79,7 +80,7 @@ class Frequency final {
     static const Frequency &concert_pitch();
 
     /// Return the Interval between this Frequency and the other.
-    constexpr Interval interval(const Frequency &other) const {
+    MAYBE_CONSTEXPR Interval interval(const Frequency &other) const {
         return Interval::from_ratio(hertz_ / other.hertz_);
     }
     /// Return the ratio between this Frequency and the other.
@@ -153,7 +154,7 @@ class Frequency final {
     static constexpr double BILLION = 1000000000.0;
 
     // This constructor is private; use one of the unit-safe factory methods.
-    constexpr explicit Frequency(double hz) : hertz_(std::abs(hz)) {}
+    constexpr explicit Frequency(double hz) : hertz_(djehuti::abs(hz)) {}
 
     // Return the ios_base storage index for the format selector for Frequency.
     static int geti() {
@@ -220,6 +221,8 @@ inline constexpr audio::Frequency operator"" _hz(unsigned long long hz) {
     return audio::Frequency::from_hertz(static_cast<long double>(hz));
 }
 
+#if HAVE_CONSTEXPR_CMATH
+
 /// You can express a Frequency as a numeric MIDI note number constant (60.2_midi).
 inline constexpr audio::Frequency operator"" _midi(long double midi) {
     return audio::Frequency::from_midi_note(static_cast<double>(midi));
@@ -229,6 +232,8 @@ inline constexpr audio::Frequency operator"" _midi(long double midi) {
 inline constexpr audio::Frequency operator"" _midi(unsigned long long hz) {
     return audio::Frequency::from_midi_note(static_cast<long double>(hz));
 }
+
+#endif  // HAVE_CONSTEXPR_CMATH
 
 /// You can express a Frequency by its period with _secper (0.25_secper = 4_hz).
 inline constexpr audio::Frequency operator"" _secper(long double secper) {

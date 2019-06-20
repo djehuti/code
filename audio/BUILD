@@ -44,6 +44,9 @@ cc_library(
         "frequency.hh",
         "interval.hh",
     ],
+    deps = [
+        "//util:math",
+    ],
 )
 
 cc_test(
